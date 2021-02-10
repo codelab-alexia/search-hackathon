@@ -1,0 +1,25 @@
+version: '3.7'
+
+services:
+  mongo:
+    image: mongo:4.2-bionic
+    ports:
+      - 27017:27017
+    env_file:
+      - .env
+    depends_on:
+      - broker
+  broker:
+    image: nats-streaming:0.20-alpine
+    command: -cid broker
+    ports: 
+      - 4222:4222
+  app:
+    build: .
+    ports:
+      - 8080:8080
+    env_file:
+      - .env
+    depends_on:
+      - broker
+      - mongo
