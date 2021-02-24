@@ -26,6 +26,10 @@ class MongoService : AutoCloseable {
         LOGGER.info("Starting Mongo service")
     }
 
+    fun saveEvents(collectionName: String, events: List<Map<String, Any?>>) {
+        getCollection(collectionName).insertMany(events.map { Document(it) }).await().indefinitely()
+    }
+
     fun getCollection(collectionName: String): ReactiveMongoCollection<Document> {
         return mongoClient.getDatabase("testQuarkus").getCollection(collectionName)
     }

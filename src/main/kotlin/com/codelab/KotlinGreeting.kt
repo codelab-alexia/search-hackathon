@@ -12,4 +12,11 @@ class KotlinGreeting {
     fun hello(@PathParam("name") name: String = "Codelab"): String {
         return "Hello $name"
     }
+
+    @GET
+    @Path("/melissa")
+    @Produces(MediaType.TEXT_PLAIN)
+    fun mel() : String {
+        return "Oi Mel <3"
+    }
 }

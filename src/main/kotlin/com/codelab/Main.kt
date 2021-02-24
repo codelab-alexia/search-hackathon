@@ -3,10 +3,13 @@ package com.codelab
 import com.codelab.broker.StanService
 import com.codelab.storage.MongoService
 import com.google.gson.Gson
+import com.mongodb.client.MongoCollection
+import io.quarkus.mongodb.reactive.ReactiveMongoCollection
 import io.quarkus.runtime.Quarkus
 import io.quarkus.runtime.QuarkusApplication
 import io.quarkus.runtime.Startup
 import io.quarkus.runtime.annotations.QuarkusMain
+import org.bson.*
 import javax.enterprise.inject.Default
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -27,6 +30,7 @@ object Main {
     @Startup
     @Singleton
     class App : QuarkusApplication {
+        val gson = Gson()
 
         @Inject
         @field: Default
@@ -38,6 +42,8 @@ object Main {
 
         override fun run(vararg args: String?): Int {
             stanService.connection.subscribe("NEW_HACKATHON_CREATED") { message ->
+                val hackathon = gson.fromJson(String(message.data), Map::class.java) as Map<String, Any?>
+                mongoService.saveEvents("hackathons", listOf(hackathon))
                 println("New hackathon created: - ${String(message.data)}")
             }
 
@@ -61,9 +67,18 @@ class TestResource {
     @Path("/mongo")
     @Produces(MediaType.APPLICATION_JSON)
     fun mongoTest() : String {
-        return gson.toJson(mainService.mongoService.getCollection("user").find().map { document ->
-            return@map document["name"] as String
+        return gson.toJson(getHackathonsCollection().find().map { document ->
+            return@map document.toMap()
         }.collectItems().asList().await().indefinitely())
+    }
+
+    @GET
+    @Path("/search")
+    fun searchTest(@QueryParam("name") name: String) : String {
+        val document = BsonDocument().append("name", BsonString(name))
+
+        val result = getHackathonsCollection().find(document).collectItems().first().await().indefinitely()
+        return result.toString()
     }
 
     @GET
@@ -72,6 +87,10 @@ class TestResource {
     fun search(@QueryParam("s") value: String?) : String {
         mainService.stanService.connection.publish("SEARCH", (value?:"empty query param").toByteArray())
         return "Olha o log da aplicacao, cara"
+    }
+
+    private fun getHackathonsCollection() : ReactiveMongoCollection<Document> {
+        return mainService.mongoService.getCollection("hackathons")
     }
 }
 

@@ -1,8 +1,11 @@
+import org.jetbrains.kotlin.gradle.tasks.*
+
 group = "com.codelab"
 version = "1.0.0-SNAPSHOT"
 
+
 plugins {
-    val kotlinVersion = "1.3.30"
+    val kotlinVersion = "1.4.20"
     java
     id("io.quarkus")
     kotlin("jvm") version kotlinVersion
@@ -47,12 +50,12 @@ java {
     targetCompatibility = JavaVersion.VERSION_11
 }
 
-val compileKotlin: org.jetbrains.kotlin.gradle.tasks.KotlinCompile by tasks
+val compileKotlin: KotlinCompile by tasks
 compileKotlin.kotlinOptions {
     jvmTarget = JavaVersion.VERSION_11.majorVersion
 }
 
-val compileTestKotlin: org.jetbrains.kotlin.gradle.tasks.KotlinCompile by tasks
+val compileTestKotlin: KotlinCompile by tasks
 compileTestKotlin.kotlinOptions {
     jvmTarget = JavaVersion.VERSION_11.majorVersion
 }

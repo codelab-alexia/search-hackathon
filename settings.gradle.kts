@@ -10,4 +10,4 @@ pluginManagement {
         id(quarkusPluginId) version quarkusPluginVersion
     }
 }
-rootProject.name="java-ms-boilerplate"
+rootProject.name="kotlin-ms-boilerplate"
